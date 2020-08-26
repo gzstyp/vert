@@ -116,7 +116,7 @@ public class Launcher extends AbstractVerticle {
         .end(ToolClient.json(200,page+",获取url参数,restful模式,"+size));
     });
 
-    //获取body参数-->表单form-data格式,即请求头的 "Content-Type","application/x-www-form-urlencoded"
+    //获取body参数-->表单 multipart/form-data 格式,即请求头的 "Content-Type","application/x-www-form-urlencoded"
     router.route("/form").handler(context -> {
       final String page = context.request().getFormAttribute("page");
       final String param = context.request().getParam("page");
