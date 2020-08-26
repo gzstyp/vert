@@ -10,12 +10,20 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.mysqlclient.MySQLConnectOptions;
 import io.vertx.mysqlclient.MySQLPool;
 import io.vertx.sqlclient.PoolOptions;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
 import io.vertx.sqlclient.SqlConnection;
+import io.vertx.sqlclient.Tuple;
+
+import java.util.ArrayList;
 
 public class Launcher extends AbstractVerticle {
 
   //第一步,声明router,如果有重复的 path 路由的话,它匹配顺序是从上往下的,仅会执行第一个.那如何更改顺序呢？可以通过 order(x)来更改顺序,值越小越先执行!
   Router router;
+
+  // 创建数据库连接池
+  MySQLPool client;
 
   final MySQLConnectOptions connectOptions = new MySQLConnectOptions()
     .setPort(3306)
@@ -29,8 +37,6 @@ public class Launcher extends AbstractVerticle {
   //配置数据库连接池
   final PoolOptions pool = new PoolOptions().setMaxSize(32);
 
-  // 创建连接池
-  MySQLPool client;
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
 
@@ -58,80 +64,115 @@ public class Launcher extends AbstractVerticle {
 
     //第四步,配置Router解析url
     router.get("/").handler(context -> {
-      context.response()
-        .putHeader("content-type","application/json;charset=UTF-8")
-        .end(ToolClient.json(200,"操作成功"));
+      final String json = ToolClient.createJson(200,"操作成功");
+      ToolClient.responseJson(context,json);
     });
 
     router.route("/login").order(1).handler(context -> {
-      context.response()
-        .putHeader("content-type","application/json;charset=UTF-8")
-        .end(ToolClient.json(200,"登录成功!"));
+      final String json = ToolClient.createJson(200,"登录成功!");
+      ToolClient.responseJson(context,json);
     });
 
     router.post("/register").handler((context) -> {
       final String username = context.request().getParam("username");
       final String password = context.request().getParam("password");
-      client.getConnection((result ->{
 
-        if (result.succeeded()) {
-          System.out.println("连接数据库成功");
-          // Obtain our connection
+      client.getConnection((result) ->{
+        if(result.succeeded()){
           final SqlConnection conn = result.result();
-          // All operations execute on the same connection
-          conn.query("SELECT * FROM sys_user WHERE kid='julien'").execute(row -> {
-              if (row.succeeded()) {
-                conn.query("SELECT * FROM sys_user WHERE kid='emad'").execute(rt -> {
-                  //处理业务
-                  conn.close();
-                  });
-              } else {
-                conn.close();
-              }
-            });
-        } else {
-          System.out.println("连接数据库失败,"+ result.cause().getMessage());
+          conn.preparedQuery("INSERT INTO sys_user(username,`password`) VALUES (?,?)").execute(Tuple.of(username,password),rows ->{
+            conn.close();//推荐写在第1行,防止忘记释放资源
+            if(rows.succeeded()){
+              final RowSet<Row> rowSet = rows.result();
+              final int count = rowSet.rowCount();
+              final String json = ToolClient.createJson(200,"注册成功,条数:"+count);
+              ToolClient.responseJson(context,json);
+            }else{
+              final String json = ToolClient.createJson(199,"注册失败,原因:"+rows.cause());
+              ToolClient.responseJson(context,json);
+            }
+          });
         }
-      }));
-      context.response()
-        .putHeader("content-type","application/json;charset=UTF-8")
-        .end(ToolClient.json(200,"注册成功"));
+      });
     });
 
-    //获取url参数,经典模式,即url的参数 http://192.168.3.108/url?page=1&size=20
+    //获取url参数,经典模式,即url的参数 http://192.168.3.108/url?page=10&size=1
     router.route("/url").handler(context -> {
       final String page = context.request().getParam("page");
       final String size = context.request().getParam("size");
-      context.response()
-        .putHeader("content-type","application/json;charset=UTF-8")
-        .end(ToolClient.json(200,page +",获取url参数,经典模式,即url的参数 ,"+size));
+      /*不带参数的,client.getConnection((result) ->{
+        if(result.succeeded()){
+          final SqlConnection conn = result.result();
+          conn.query("SELECT kid,username,password FROM sys_user").execute(rows ->{
+            conn.close();//推荐写在第1行,防止忘记释放资源
+            if(rows.succeeded()){
+              final ArrayList<JsonObject> list = new ArrayList<>();
+              rows.result().forEach((item) ->{
+                final JsonObject jsonObject = new JsonObject();
+                jsonObject.put("kid",item.getValue("kid"));
+                jsonObject.put("username",item.getValue("username"));
+                jsonObject.put("password",item.getValue("password"));
+                list.add(jsonObject);
+              });
+              final String json = ToolClient.createJson(200,page +",操作数据库成功,"+list.toString()+",获取url参数,经典模式,即url的参数 ,"+size);
+              ToolClient.responseJson(context,json);
+            }else{
+              final String json = ToolClient.createJson(199,page +",操作数据库失败,"+rows.cause()+",获取url参数,经典模式,即url的参数 ,"+size);
+              ToolClient.responseJson(context,json);
+            }
+          });
+        }
+      });*/
+
+      final Integer pageSize = Integer.parseInt(size);
+      final Integer section = (Integer.parseInt(page) - 1) * pageSize;
+      //带参数的
+      client.getConnection((result) ->{
+        if(result.succeeded()){
+          final SqlConnection conn = result.result();
+          conn.preparedQuery("SELECT kid,username,password FROM sys_user limit ?,?").execute(Tuple.of(section,pageSize),rows ->{
+            conn.close();//推荐写在第1行,防止忘记释放资源
+            if(rows.succeeded()){
+              final ArrayList<JsonObject> list = new ArrayList<>();
+              rows.result().forEach((item) ->{
+                final JsonObject jsonObject = new JsonObject();
+                jsonObject.put("kid",item.getValue("kid"));
+                jsonObject.put("username",item.getValue("username"));
+                jsonObject.put("password",item.getValue("password"));
+                list.add(jsonObject);
+              });
+              final String json = ToolClient.createJson(200,page +",操作数据库成功,"+list.toString()+",获取url参数,经典模式,即url的参数 ,"+size);
+              ToolClient.responseJson(context,json);
+            }else{
+              final String json = ToolClient.createJson(199,page +",操作数据库失败,"+rows.cause()+",获取url参数,经典模式,即url的参数 ,"+size);
+              ToolClient.responseJson(context,json);
+            }
+          });
+        }
+      });
     });
 
     //获取url参数,restful模式,用:和url上的/对应的绑定,它和vue的:Xxx="Yy"同样的意思,注意顺序! http://192.168.3.108/restful/10/30
     router.route("/restful/:page/:size").handler(context -> {
       final String page = context.request().getParam("page");
       final String size = context.request().getParam("size");
-      context.response()
-        .putHeader("content-type","application/json;charset=UTF-8")
-        .end(ToolClient.json(200,page+",获取url参数,restful模式,"+size));
+      final String json = ToolClient.createJson(200,page+",获取url参数,restful模式,"+size);
+      ToolClient.responseJson(context,json);
     });
 
     //获取body参数-->表单 multipart/form-data 格式,即请求头的 "Content-Type","application/x-www-form-urlencoded"
     router.route("/form").handler(context -> {
       final String page = context.request().getFormAttribute("page");
       final String param = context.request().getParam("page");
-      System.out.println(param);
-      context.response()
-        .putHeader("content-type","application/json;charset=UTF-8")
-        .end(ToolClient.json(200,param + ",获取body参数-->表单form-data格式," + page));
+      final String json = ToolClient.createJson(200,param + ",获取body参数-->表单form-data格式," + page);
+      ToolClient.responseJson(context,json);
     });
 
     //获取body参数-->json格式,即请求头的 "Content-Type","application/json"
     router.route("/json").handler(context -> {
       final JsonObject page = context.getBodyAsJson();
-      context.response()
-        .putHeader("content-type","application/json;charset=UTF-8")
-        .end(ToolClient.json(200,page.toString() + "获取body参数-->json格式,"+page.encode()+",解析:"+page.getValue("page")));
+      final String json = ToolClient.createJson(200,page.toString() + "获取body参数-->json格式,"+page.encode()+",解析:"+page.getValue("page"));
+      ToolClient.responseJson(context,json);
     });
   }
 }
