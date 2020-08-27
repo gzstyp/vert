@@ -1,7 +1,9 @@
 package com.fwtai;
 
 import com.fwtai.service.IndexHandle;
+import com.fwtai.service.UserService;
 import com.fwtai.tool.ToolClient;
+import com.fwtai.tool.ToolDao;
 import com.fwtai.tool.ToolData;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -10,10 +12,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.mysqlclient.MySQLPool;
-import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.RowSet;
-import io.vertx.sqlclient.SqlConnection;
-import io.vertx.sqlclient.Tuple;
 
 import java.util.ArrayList;
 
@@ -23,11 +21,13 @@ public class Launcher extends AbstractVerticle {
   Router router;
 
   private MySQLPool client;
+  private ToolDao toolDao;
 
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
 
     client = new ToolData(vertx).getClient();
+    toolDao = new ToolDao(vertx);
 
     //创建HttpServer
     final HttpServer httpServer = vertx.createHttpServer();
@@ -60,27 +60,15 @@ public class Launcher extends AbstractVerticle {
       ToolClient.responseJson(context,json);
     });
 
+    // http://192.168.3.108/register?username=tzz&password=000000
     router.post("/register").handler((context) -> {
       final String username = context.request().getParam("username");
       final String password = context.request().getParam("password");
-
-      client.getConnection((result) ->{
-        if(result.succeeded()){
-          final SqlConnection conn = result.result();
-          conn.preparedQuery("INSERT INTO sys_user(username,`password`) VALUES (?,?)").execute(Tuple.of(username,password),rows ->{
-            conn.close();//推荐写在第1行,防止忘记释放资源
-            if(rows.succeeded()){
-              final RowSet<Row> rowSet = rows.result();
-              final int count = rowSet.rowCount();
-              final String json = ToolClient.createJson(200,"注册成功,条数:"+count);
-              ToolClient.responseJson(context,json);
-            }else{
-              final String json = ToolClient.createJson(199,"注册失败,原因:"+rows.cause());
-              ToolClient.responseJson(context,json);
-            }
-          });
-        }
-      });
+      final String sql = "INSERT INTO sys_user(username,`password`) VALUES (?,?)";
+      final ArrayList<Object> params = new ArrayList<>();
+      params.add(username);
+      params.add(password);
+      toolDao.exeSql(context,sql,params);
     });
 
     //获取url参数,经典模式,即url的参数 http://192.168.3.108/url?page=1&size=10
@@ -114,7 +102,7 @@ public class Launcher extends AbstractVerticle {
       final Integer pageSize = Integer.parseInt(size);
       final Integer section = (Integer.parseInt(page) - 1) * pageSize;
       //带参数的
-      client.getConnection((result) ->{
+      /*client.getConnection((result) ->{
         if(result.succeeded()){
           final SqlConnection conn = result.result();
           conn.preparedQuery("SELECT kid,username,password FROM sys_user limit ?,?").execute(Tuple.of(section,pageSize),rows ->{
@@ -136,8 +124,31 @@ public class Launcher extends AbstractVerticle {
             }
           });
         }
-      });
+      });*/
+      final ArrayList<Object> params = new ArrayList<>();
+
+      params.add(section);
+      params.add(pageSize);
+
+      final String kid = "kid";
+      final String username = "username";
+      final String password = "password";
+
+      final ArrayList<String> columns = new ArrayList<>();
+      columns.add(kid);
+      columns.add(username);
+      columns.add(password);
+
+      final String field = " "+kid+","+username + "," + password +" ";
+
+      final String sql = "SELECT "+field+" FROM sys_user limit ?,?";
+      toolDao.queryList(context,sql,params,columns);
+
+
     });
+
+    // http://192.168.3.108/rest/1
+    router.route("/rest/:kid").handler(new UserService(toolDao));
 
     //获取url参数,restful模式,用:和url上的/对应的绑定,它和vue的:Xxx="Yy"同样的意思,注意顺序! http://192.168.3.108/restful/10/30
     router.route("/restful/:page/:size").handler(context -> {
