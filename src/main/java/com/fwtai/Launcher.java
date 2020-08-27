@@ -144,7 +144,6 @@ public class Launcher extends AbstractVerticle {
       final String sql = "SELECT "+field+" FROM sys_user limit ?,?";
       toolDao.queryList(context,sql,params,columns);
 
-
     });
 
     // http://192.168.3.108/rest/1
