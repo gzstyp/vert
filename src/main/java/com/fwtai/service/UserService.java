@@ -7,7 +7,7 @@ import io.vertx.ext.web.RoutingContext;
 import java.util.ArrayList;
 
 /**
- * 二级路由
+ * 分发处理
  * @作者 田应平
  * @版本 v1.0
  * @创建时间 2020-08-27 10:53
@@ -17,7 +17,7 @@ import java.util.ArrayList;
  */
 public final class UserService implements Handler<RoutingContext>{
 
-  private ToolDao toolDao;
+  private final ToolDao toolDao;
 
   public UserService(final ToolDao toolDao){
     this.toolDao = toolDao;
@@ -41,6 +41,6 @@ public final class UserService implements Handler<RoutingContext>{
 
     final String field = " "+kid+","+username + "," + password +" ";
     final String sql = "SELECT "+field+" FROM sys_user where kid = ? limit 1";
-    toolDao.queryMap(context,sql,params,columns);
+    toolDao.queryMap(context,sql,columns,params);
   }
 }

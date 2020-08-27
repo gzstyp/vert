@@ -4,14 +4,12 @@ import com.fwtai.service.IndexHandle;
 import com.fwtai.service.UserService;
 import com.fwtai.tool.ToolClient;
 import com.fwtai.tool.ToolDao;
-import com.fwtai.tool.ToolData;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.mysqlclient.MySQLPool;
 
 import java.util.ArrayList;
 
@@ -20,13 +18,11 @@ public class Launcher extends AbstractVerticle {
   //第一步,声明router,如果有重复的 path 路由的话,它匹配顺序是从上往下的,仅会执行第一个.那如何更改顺序呢？可以通过 order(x)来更改顺序,值越小越先执行!
   Router router;
 
-  private MySQLPool client;
   private ToolDao toolDao;
 
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
 
-    client = new ToolData(vertx).getClient();
     toolDao = new ToolDao(vertx);
 
     //创建HttpServer
@@ -60,8 +56,8 @@ public class Launcher extends AbstractVerticle {
       ToolClient.responseJson(context,json);
     });
 
-    // http://192.168.3.108/register?username=tzz&password=000000
-    router.post("/register").handler((context) -> {
+    // http://192.168.3.108/register?username=txh&password=000000
+    router.get("/register").handler((context) -> {
       final String username = context.request().getParam("username");
       final String password = context.request().getParam("password");
       final String sql = "INSERT INTO sys_user(username,`password`) VALUES (?,?)";
@@ -75,58 +71,9 @@ public class Launcher extends AbstractVerticle {
     router.route("/url").handler(context -> {
       final String page = context.request().getParam("page");
       final String size = context.request().getParam("size");
-      /*不带参数的,client.getConnection((result) ->{
-        if(result.succeeded()){
-          final SqlConnection conn = result.result();
-          conn.query("SELECT kid,username,password FROM sys_user").execute(rows ->{
-            conn.close();//推荐写在第1行,防止忘记释放资源
-            if(rows.succeeded()){
-              final ArrayList<JsonObject> list = new ArrayList<>();
-              rows.result().forEach((item) ->{
-                final JsonObject jsonObject = new JsonObject();
-                jsonObject.put("kid",item.getValue("kid"));
-                jsonObject.put("username",item.getValue("username"));
-                jsonObject.put("password",item.getValue("password"));
-                list.add(jsonObject);
-              });
-              final String json = ToolClient.createJson(200,page +",操作数据库成功,"+list.toString()+",获取url参数,经典模式,即url的参数 ,"+size);
-              ToolClient.responseJson(context,json);
-            }else{
-              final String json = ToolClient.createJson(199,page +",操作数据库失败,"+rows.cause()+",获取url参数,经典模式,即url的参数 ,"+size);
-              ToolClient.responseJson(context,json);
-            }
-          });
-        }
-      });*/
-
       final Integer pageSize = Integer.parseInt(size);
       final Integer section = (Integer.parseInt(page) - 1) * pageSize;
-      //带参数的
-      /*client.getConnection((result) ->{
-        if(result.succeeded()){
-          final SqlConnection conn = result.result();
-          conn.preparedQuery("SELECT kid,username,password FROM sys_user limit ?,?").execute(Tuple.of(section,pageSize),rows ->{
-            conn.close();//推荐写在第1行,防止忘记释放资源
-            if(rows.succeeded()){
-              final ArrayList<JsonObject> list = new ArrayList<>();
-              rows.result().forEach((item) ->{
-                final JsonObject jsonObject = new JsonObject();
-                jsonObject.put("kid",item.getValue("kid"));
-                jsonObject.put("username",item.getValue("username"));
-                jsonObject.put("password",item.getValue("password"));
-                list.add(jsonObject);
-              });
-              final String json = ToolClient.createJson(200,page +",操作数据库成功,"+list.toString()+",获取url参数,经典模式,即url的参数 ,"+size);
-              ToolClient.responseJson(context,json);
-            }else{
-              final String json = ToolClient.createJson(199,page +",操作数据库失败,"+rows.cause()+",获取url参数,经典模式,即url的参数 ,"+size);
-              ToolClient.responseJson(context,json);
-            }
-          });
-        }
-      });*/
       final ArrayList<Object> params = new ArrayList<>();
-
       params.add(section);
       params.add(pageSize);
 
@@ -142,7 +89,7 @@ public class Launcher extends AbstractVerticle {
       final String field = " "+kid+","+username + "," + password +" ";
 
       final String sql = "SELECT "+field+" FROM sys_user limit ?,?";
-      toolDao.queryList(context,sql,params,columns);
+      toolDao.queryList(context,sql,columns,params);
 
     });
 
