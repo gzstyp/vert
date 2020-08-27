@@ -4,7 +4,6 @@ import com.fwtai.tool.ToolClient;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
 
-/**MVC-->C,Handler这就是Controller。*/
 public class IndexHandle implements Handler<RoutingContext>{
 
   @Override
