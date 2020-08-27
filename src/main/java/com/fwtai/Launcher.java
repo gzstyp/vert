@@ -1,5 +1,6 @@
 package com.fwtai;
 
+import com.fwtai.service.IndexHandle;
 import com.fwtai.tool.ToolClient;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -40,16 +41,17 @@ public class Launcher extends AbstractVerticle {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
 
-    //实例化
+    //实例化,可选
     client = MySQLPool.pool(vertx,connectOptions,pool);
+
+    //创建HttpServer
+    final HttpServer httpServer = vertx.createHttpServer();
 
     //第二步,初始化|实例化 Router
     router = Router.router(vertx);
 
-    //若想要或body的参数[含表单的form-data和json格式]需要添加
+    //若想要或body的参数[含表单的form-data和json格式]需要添加,可选
     router.route().handler(BodyHandler.create());//支持文件上传的目录,ctrl + p 查看
-
-    final HttpServer httpServer = vertx.createHttpServer();
 
     //第三步,将router和 HttpServer 绑定
     httpServer.requestHandler(router).listen(80, http -> {
@@ -174,5 +176,8 @@ public class Launcher extends AbstractVerticle {
       final String json = ToolClient.createJson(200,page.toString() + "获取body参数-->json格式,"+page.encode()+",解析:"+page.getValue("page"));
       ToolClient.responseJson(context,json);
     });
+
+    // http://127.0.0.1/controller
+    router.route("/controller").handler(new IndexHandle());
   }
 }
