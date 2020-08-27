@@ -2,15 +2,14 @@ package com.fwtai;
 
 import com.fwtai.service.IndexHandle;
 import com.fwtai.tool.ToolClient;
+import com.fwtai.tool.ToolData;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.mysqlclient.MySQLConnectOptions;
 import io.vertx.mysqlclient.MySQLPool;
-import io.vertx.sqlclient.PoolOptions;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import io.vertx.sqlclient.SqlConnection;
@@ -23,26 +22,12 @@ public class Launcher extends AbstractVerticle {
   //第一步,声明router,如果有重复的 path 路由的话,它匹配顺序是从上往下的,仅会执行第一个.那如何更改顺序呢？可以通过 order(x)来更改顺序,值越小越先执行!
   Router router;
 
-  // 创建数据库连接池
-  MySQLPool client;
-
-  final MySQLConnectOptions connectOptions = new MySQLConnectOptions()
-    .setPort(3306)
-    .setHost("192.168.3.66")
-    .setDatabase("vertx")
-    .setUser("root")
-    .setPassword("rootFwtai")
-    .setCharset("utf8mb4")
-    .setSsl(false);
-
-  //配置数据库连接池
-  final PoolOptions pool = new PoolOptions().setMaxSize(32);
+  private MySQLPool client;
 
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
 
-    //实例化,可选
-    client = MySQLPool.pool(vertx,connectOptions,pool);
+    client = new ToolData(vertx).getClient();
 
     //创建HttpServer
     final HttpServer httpServer = vertx.createHttpServer();
@@ -98,7 +83,7 @@ public class Launcher extends AbstractVerticle {
       });
     });
 
-    //获取url参数,经典模式,即url的参数 http://192.168.3.108/url?page=10&size=1
+    //获取url参数,经典模式,即url的参数 http://192.168.3.108/url?page=1&size=10
     router.route("/url").handler(context -> {
       final String page = context.request().getParam("page");
       final String size = context.request().getParam("size");
