@@ -26,7 +26,7 @@ import java.util.List;
 public final class ToolDao{
 
   // 创建数据库连接池
-  private MySQLPool client;
+  private final MySQLPool client;
 
   final MySQLConnectOptions connectOptions = new MySQLConnectOptions()
     .setPort(3306)
