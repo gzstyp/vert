@@ -12,7 +12,7 @@ public final class ToolClient{
     return json.encode();
   }
 
-  public static void responseJson(final RoutingContext context,final String json){
-    context.response().putHeader("Cache-Control","no-cache").putHeader("content-type","application/json;charset=UTF-8").end(json);
+  public static void responseJson(final RoutingContext context,final String payload){
+    context.response().putHeader("Cache-Control","no-cache").putHeader("content-type","application/json;charset=UTF-8").end(payload);
   }
 }
