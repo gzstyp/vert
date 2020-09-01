@@ -1,6 +1,7 @@
 package com.fwtai;
 
 import com.fwtai.service.IndexHandle;
+import com.fwtai.service.UrlHandle;
 import com.fwtai.service.UserService;
 import com.fwtai.tool.ToolClient;
 import com.fwtai.tool.ToolDao;
@@ -121,5 +122,8 @@ public class Launcher extends AbstractVerticle {
 
     // http://127.0.0.1/controller
     router.route("/controller").handler(new IndexHandle());
+
+    // http://127.0.0.1/client
+    router.route("/client").handler(new UrlHandle(vertx));
   }
 }
