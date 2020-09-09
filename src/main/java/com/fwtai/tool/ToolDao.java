@@ -161,13 +161,7 @@ public final class ToolDao{
             final int count = rowSet.rowCount();
             ToolClient.responseJson(context,ToolClient.executeRows(count));
           }else{
-            final Throwable throwable = rows.cause();
-            final String message = throwable.getMessage();
-            if(message.contains("cannot be null")){
-              ToolClient.responseJson(context,ToolClient.jsonParams());
-              return;
-            }
-            ToolClient.responseJson(context,ToolClient.jsonFailure());
+            failure(context,rows.cause());
           }
         });
       }
@@ -185,16 +179,21 @@ public final class ToolDao{
             final int count = rowSet.rowCount();
             ToolClient.responseJson(context,ToolClient.executeRows(count));
           }else{
-            final Throwable throwable = rows.cause();
-            final String message = throwable.getMessage();
-            if(message.contains("cannot be null")){
-              ToolClient.responseJson(context,ToolClient.jsonParams());
-              return;
-            }
-            ToolClient.responseJson(context,ToolClient.jsonFailure());
+            failure(context,rows.cause());
           }
         });
       }
     });
+  }
+
+  public void failure(final RoutingContext context,final Throwable throwable){
+    final String message = throwable.getMessage();
+    if(message.contains("cannot be null")){
+      ToolClient.responseJson(context,ToolClient.jsonParams());
+    }else if(message.contains("Duplicate entry")){
+      ToolClient.responseJson(context,ToolClient.createJson(199,"数据已存在"));
+    }else{
+      ToolClient.responseJson(context,ToolClient.jsonFailure());
+    }
   }
 }
