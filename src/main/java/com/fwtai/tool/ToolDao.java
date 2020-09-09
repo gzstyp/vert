@@ -161,8 +161,13 @@ public final class ToolDao{
             final int count = rowSet.rowCount();
             ToolClient.responseJson(context,ToolClient.executeRows(count));
           }else{
-            final String json = ToolClient.createJson(199,"操作失败,"+rows.cause());
-            ToolClient.responseJson(context,json);
+            final Throwable throwable = rows.cause();
+            final String message = throwable.getMessage();
+            if(message.contains("cannot be null")){
+              ToolClient.responseJson(context,ToolClient.jsonParams());
+              return;
+            }
+            ToolClient.responseJson(context,ToolClient.jsonFailure());
           }
         });
       }
@@ -180,8 +185,13 @@ public final class ToolDao{
             final int count = rowSet.rowCount();
             ToolClient.responseJson(context,ToolClient.executeRows(count));
           }else{
-            final String json = ToolClient.createJson(199,"操作失败,"+rows.cause());
-            ToolClient.responseJson(context,json);
+            final Throwable throwable = rows.cause();
+            final String message = throwable.getMessage();
+            if(message.contains("cannot be null")){
+              ToolClient.responseJson(context,ToolClient.jsonParams());
+              return;
+            }
+            ToolClient.responseJson(context,ToolClient.jsonFailure());
           }
         });
       }

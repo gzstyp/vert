@@ -7,12 +7,16 @@ import com.fwtai.tool.ToolClient;
 import com.fwtai.tool.ToolDao;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Launcher extends AbstractVerticle {
 
@@ -34,6 +38,14 @@ public class Launcher extends AbstractVerticle {
 
     //若想要或body的参数[含表单的form-data和json格式]需要添加,可选
     router.route().handler(BodyHandler.create());//支持文件上传的目录,ctrl + p 查看
+
+    final Set<HttpMethod> methods = new HashSet<>();
+    methods.add(HttpMethod.OPTIONS);
+    methods.add(HttpMethod.GET);
+    methods.add(HttpMethod.POST);
+
+    //router.route().handler(CorsHandler.create("vertx\\.io").allowedMethods(methods));//支持正则表达式
+    router.route().handler(CorsHandler.create("http://192.168.3.108:8080").allowedMethods(methods));//支持正则表达式
 
     //第三步,将router和 HttpServer 绑定
     httpServer.requestHandler(router).listen(80, http -> {
