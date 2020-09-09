@@ -65,6 +65,18 @@ public final class ToolClient{
     return json.encode();
   }
 
+  public static String executeRows(final int rows){
+    final JsonObject json = new JsonObject();
+    if(rows > 0){
+      json.put(key_code,200);
+      json.put(key_msg,"操作成功");
+      json.put(key_data,rows);
+      return json.encode();
+    }else{
+      return jsonFailure();
+    }
+  }
+
   public static void responseJson(final RoutingContext context,final String payload){
     context.response().putHeader("Cache-Control","no-cache").putHeader("content-type","application/json;charset=UTF-8").end(payload);
   }

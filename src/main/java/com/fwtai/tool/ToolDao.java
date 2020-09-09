@@ -159,13 +159,7 @@ public final class ToolDao{
           if(rows.succeeded()){
             final RowSet<Row> rowSet = rows.result();
             final int count = rowSet.rowCount();
-            String json;
-            if(count > 0){
-              json = ToolClient.createJson(200,"操作成功");
-            }else{
-              json = ToolClient.createJson(199,"操作失败");
-            }
-            ToolClient.responseJson(context,json);
+            ToolClient.responseJson(context,ToolClient.executeRows(count));
           }else{
             final String json = ToolClient.createJson(199,"操作失败,"+rows.cause());
             ToolClient.responseJson(context,json);
@@ -184,13 +178,7 @@ public final class ToolDao{
           if(rows.succeeded()){
             final RowSet<Row> rowSet = rows.result();
             final int count = rowSet.rowCount();
-            String json;
-            if(count > 0){
-              json = ToolClient.createJson(200,"操作成功");
-            }else{
-              json = ToolClient.createJson(199,"操作失败");
-            }
-            ToolClient.responseJson(context,json);
+            ToolClient.responseJson(context,ToolClient.executeRows(count));
           }else{
             final String json = ToolClient.createJson(199,"操作失败,"+rows.cause());
             ToolClient.responseJson(context,json);
