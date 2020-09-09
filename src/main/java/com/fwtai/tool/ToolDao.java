@@ -62,8 +62,7 @@ public final class ToolDao{
               list.add(jsonObject);
             });
             //操作数据库成功
-            final String json = list.toString();
-            ToolClient.responseJson(context,json);
+            ToolClient.responseJson(context,ToolClient.queryJson(list));
           }else{
             //操作数据库失败
             final String json = ToolClient.createJson(199,"连接数据库失败");
@@ -92,8 +91,7 @@ public final class ToolDao{
               list.add(jsonObject);
             });
             //操作数据库成功
-            final String json = list.toString();
-            ToolClient.responseJson(context,json);
+            ToolClient.responseJson(context,ToolClient.queryJson(list));
           }else{
             //操作数据库失败
             final String json = ToolClient.createJson(199,"连接数据库失败");
@@ -118,7 +116,7 @@ public final class ToolDao{
                 jsonObject.put(column,item.getValue(column));
               }
             });
-            ToolClient.responseJson(context,jsonObject.encode());
+            ToolClient.responseJson(context,ToolClient.queryJson(jsonObject));
           }else{
             final String json = ToolClient.createJson(199,"连接数据库失败");
             ToolClient.responseJson(context,json);
@@ -142,7 +140,7 @@ public final class ToolDao{
                 jsonObject.put(column,item.getValue(column));
               }
             });
-            ToolClient.responseJson(context,jsonObject.encode());
+            ToolClient.responseJson(context,ToolClient.queryJson(jsonObject));
           }else{
             final String json = ToolClient.createJson(199,"连接数据库失败");
             ToolClient.responseJson(context,json);
