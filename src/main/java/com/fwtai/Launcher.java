@@ -22,7 +22,7 @@ public class Launcher extends AbstractVerticle {
   private ToolDao toolDao;
 
   @Override
-  public void start(Promise<Void> startPromise) throws Exception {
+  public void start(final Promise<Void> startPromise) throws Exception {
 
     toolDao = new ToolDao(vertx);
 
