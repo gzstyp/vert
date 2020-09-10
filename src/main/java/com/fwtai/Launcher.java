@@ -60,13 +60,11 @@ public class Launcher extends AbstractVerticle {
 
     //第四步,配置Router解析url
     router.get("/").handler(context -> {
-      final String json = ToolClient.createJson(200,"操作成功");
-      ToolClient.responseJson(context,json);
+      ToolClient.responseJson(context,ToolClient.jsonSucceed());
     });
 
     router.route("/login").order(1).handler(context -> {
-      final String json = ToolClient.createJson(200,"登录成功!");
-      ToolClient.responseJson(context,json);
+      ToolClient.responseJson(context,ToolClient.jsonSucceed("登录成功!"));
     });
 
     // http://192.168.3.108/register?username=txh&password=000000
@@ -113,16 +111,14 @@ public class Launcher extends AbstractVerticle {
     router.route("/restful/:page/:size").handler(context -> {
       final String page = context.request().getParam("page");
       final String size = context.request().getParam("size");
-      final String json = ToolClient.createJson(200,page+",获取url参数,restful模式,"+size);
-      ToolClient.responseJson(context,json);
+      ToolClient.responseJson(context,ToolClient.jsonSucceed(page+",获取url参数,restful模式,"+size));
     });
 
     //获取body参数-->表单 multipart/form-data 格式,即请求头的 "Content-Type","application/x-www-form-urlencoded"
     router.route("/form").handler(context -> {
       final String page = context.request().getFormAttribute("page");
       final String param = context.request().getParam("page");
-      final String json = ToolClient.createJson(200,param + ",获取body参数-->表单form-data格式," + page);
-      ToolClient.responseJson(context,json);
+      ToolClient.responseJson(context,ToolClient.jsonSucceed(param + ",获取body参数-->表单form-data格式," + page));
     });
 
     //获取body参数-->json格式,即请求头的 "Content-Type","application/json"
