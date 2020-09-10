@@ -23,8 +23,16 @@ public final class ToolClient{
     return createJson(199,"操作失败");
   }
 
+  public static String jsonFailure(final String msg){
+    return createJson(199,msg);
+  }
+
   public static String jsonSucceed(){
     return createJson(200,"操作成功");
+  }
+
+  public static String jsonSucceed(final String msg){
+    return createJson(200,msg);
   }
 
   public static String jsonEmpty(){
