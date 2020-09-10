@@ -22,7 +22,7 @@ import java.util.Set;
 public class Launcher extends AbstractVerticle {
 
   //第一步,声明router,如果有重复的 path 路由的话,它匹配顺序是从上往下的,仅会执行第一个.那如何更改顺序呢？可以通过 order(x)来更改顺序,值越小越先执行!
-  Router router;
+  private Router router;
 
   private ToolDao toolDao;
 

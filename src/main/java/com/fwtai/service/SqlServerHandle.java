@@ -6,17 +6,14 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.json.JsonArray;
-import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.web.RoutingContext;
 
 public class SqlServerHandle implements Handler<RoutingContext>{
 
   private final Vertx vertx;
-  private final JDBCClient jdbcClient;
 
   public SqlServerHandle(final Vertx vertx){
     this.vertx = vertx;
-    jdbcClient = new ToolJdbc(this.vertx).getDbClient();
   }
 
   @Override
