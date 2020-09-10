@@ -11,6 +11,11 @@
   <description>
     开发阶段,把这个添加配置到Application的Main class,然后把下面的 ${main.verticle} 的值配置到 Program agruments,前面指定run参数,后面跟着启动类,即 run com.fwtai.Launcher
     部署阶段,右键运行 Maven的package生成含-fat.jar,运行即可,即 java -jar vert-v1.0.0-fat.jar
+
+    解决java.lang.SecurityException: Invalid signature file digest for Manifest main attributes
+    当项目依赖其他jar包的时候，打出的jar包执行出错，抛出这个异常。
+    原因：因为依赖jar包中的META-INF中有多余的.SF文件与当前jar包冲突
+    解决：在打包部署前删除依赖jar包的 META-INF的 MSFTSIG.SF文件
   </description>
 
   <properties>
@@ -139,8 +144,15 @@
           </arguments>
         </configuration>
       </plugin>
+      <!--打包时跳过测试-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.2</version>
+        <configuration>
+          <skipTests>true</skipTests>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
-
-
 </project>
