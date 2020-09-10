@@ -54,6 +54,26 @@ public final class ToolJdbc{
       dbClient.close();
       if(res.succeeded()){
         final ResultSet resultSet = res.result();
+        final List<JsonObject> rows = resultSet.getRows();
+        if(rows.size() > 0){
+          final JsonObject object = rows.get(0);
+          final String json = ToolClient.queryJson(object);
+          ToolClient.responseJson(context,json);
+        }else{
+          ToolClient.responseJson(context,ToolClient.jsonEmpty());
+        }
+      } else {
+        ToolClient.responseJson(context,ToolClient.jsonFailure());
+      }
+    });
+  }
+
+  private void queryHashMap(final String sql,final RoutingContext context,final JsonArray params){
+    // 执行查询
+    dbClient.queryWithParams(sql,params,res->{
+      dbClient.close();
+      if(res.succeeded()){
+        final ResultSet resultSet = res.result();
         final List<String> columnNames = resultSet.getColumnNames();
         final List<JsonArray> list = resultSet.getResults();
         if(list.size() > 0){
