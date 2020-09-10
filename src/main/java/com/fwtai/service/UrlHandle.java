@@ -22,7 +22,6 @@ public class UrlHandle implements Handler<RoutingContext>{
       response.statusCode();
       return null;
     }));
-    final String json = ToolClient.createJson(200,"分发到具体的类的方法上");
-    ToolClient.responseJson(context,json);
+    ToolClient.responseJson(context,ToolClient.jsonSucceed("分发到具体的类的方法上"));
   }
 }
