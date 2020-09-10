@@ -1,5 +1,7 @@
 package com.fwtai.tool;
 
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
@@ -85,7 +87,55 @@ public final class ToolClient{
     }
   }
 
+  private static HttpServerResponse getResponse(final RoutingContext context){
+    return context.response().putHeader("Cache-Control","no-cache").putHeader("content-type","application/json;charset=UTF-8");
+  }
+
+  /**响应json数据:第二个参数是json格式数据*/
   public static void responseJson(final RoutingContext context,final String payload){
-    context.response().putHeader("Cache-Control","no-cache").putHeader("content-type","application/json;charset=UTF-8").end(payload);
+    getResponse(context).end(payload);
+  }
+
+  /**响应json数据:code=202;msg=暂无数据*/
+  public static void responseEmpty(final RoutingContext context){
+    getResponse(context).end(jsonEmpty());
+  }
+
+  /**响应json数据:code=204;msg=系统出现错误*/
+  public static void responseError(final RoutingContext context){
+    getResponse(context).end(jsonError());
+  }
+
+  /**响应json数据:code=200;msg=操作成功*/
+  public static void responseSucceed(final RoutingContext context){
+    getResponse(context).end(jsonSucceed());
+  }
+
+  /**响应json数据:code=200;msg=指定的msg*/
+  public static void responseSucceed(final RoutingContext context,final String msg){
+    getResponse(context).end(jsonSucceed(msg));
+  }
+
+  /**响应json数据:code=199;msg=操作失败*/
+  public static void responseFailure(final RoutingContext context){
+    getResponse(context).end(jsonFailure());
+  }
+
+  /**响应json数据:code=199;msg=指定的msg*/
+  public static void responseFailure(final RoutingContext context,final String msg){
+    getResponse(context).end(jsonFailure(msg));
+  }
+
+  public static String validateField(final HttpServerRequest request,final String... fields){
+    boolean bl = false;
+    for(int i = 0; i < fields.length;i++){
+      final String value = request.getParam(fields[i]);
+      if(value == null || value.trim().length() == 0){
+        bl = true;
+        break;
+      }
+    }
+    if(bl) return ToolClient.jsonParams();
+    return null;
   }
 }

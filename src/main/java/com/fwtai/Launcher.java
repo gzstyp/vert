@@ -1,6 +1,7 @@
 package com.fwtai;
 
 import com.fwtai.service.IndexHandle;
+import com.fwtai.service.SqlServerHandle;
 import com.fwtai.service.UrlHandle;
 import com.fwtai.service.UserService;
 import com.fwtai.tool.ToolClient;
@@ -133,5 +134,8 @@ public class Launcher extends AbstractVerticle {
 
     // http://127.0.0.1/client
     router.route("/client").handler(new UrlHandle(vertx));
+
+    // http://127.0.0.1/api/sqlServer?route=map|list
+    router.route("/api/sqlServer").handler(new SqlServerHandle(vertx));
   }
 }
