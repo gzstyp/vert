@@ -1,5 +1,6 @@
 package com.fwtai;
 
+import com.fwtai.config.ConfigFiles;
 import com.fwtai.service.IndexHandle;
 import com.fwtai.service.SqlServerHandle;
 import com.fwtai.service.UrlHandle;
@@ -46,13 +47,13 @@ public class Launcher extends AbstractVerticle {
     methods.add(HttpMethod.POST);
 
     //router.route().handler(CorsHandler.create("vertx\\.io").allowedMethods(methods));//支持正则表达式
-    router.route().handler(CorsHandler.create("http://192.168.3.108:8080").allowedMethods(methods));//支持正则表达式
+    router.route().handler(CorsHandler.create(ConfigFiles.allowedOriginPattern).allowedMethods(methods));//支持正则表达式
 
     //第三步,将router和 HttpServer 绑定
-    httpServer.requestHandler(router).listen(80, http -> {
+    httpServer.requestHandler(router).listen(ConfigFiles.port, http -> {
       if (http.succeeded()) {
         startPromise.complete();
-        System.out.println("---应用启动成功---");
+        System.out.println("---应用启动成功---"+ConfigFiles.port);
       } else {
         startPromise.fail(http.cause());
         System.out.println("---应用启动失败---");
