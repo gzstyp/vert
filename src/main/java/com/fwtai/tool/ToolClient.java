@@ -88,7 +88,7 @@ public final class ToolClient{
   }
 
   private static HttpServerResponse getResponse(final RoutingContext context){
-    return context.response().putHeader("Cache-Control","no-cache").putHeader("content-type","application/json;charset=UTF-8");
+    return context.response().putHeader("Cache-Control","no-cache").putHeader("content-type","text/html;charset=utf-8");
   }
 
   /**响应json数据:第二个参数是json格式数据*/
