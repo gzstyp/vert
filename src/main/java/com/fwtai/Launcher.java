@@ -20,6 +20,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * 异步处理方式;区别在于 router.get("/sync").handler 和 router.get("/async").blockingHandler,即同步是 handler;异步是 blockingHandler
+ * @作者 田应平
+ * @版本 v1.0
+ * @创建时间 2020年9月17日 13:27:41
+ * @QQ号码 444141300
+ * @Email service@dwlai.com
+ * @官网 http://www.fwtai.com
+*/
 public class Launcher extends AbstractVerticle {
 
   //第一步,声明router,如果有重复的 path 路由的话,它匹配顺序是从上往下的,仅会执行第一个.那如何更改顺序呢？可以通过 order(x)来更改顺序,值越小越先执行!
