@@ -59,7 +59,13 @@ public final class ToolClient{
     if(object instanceof Map<?,?>){
       final Map<?,?> map = (Map<?,?>) object;
       if(map.size() <= 0){
-        jsonEmpty();
+        return jsonEmpty();
+      }
+    }
+    if(object instanceof JsonObject){
+      final JsonObject jsonObject = (JsonObject) object;
+      if(jsonObject.isEmpty()){
+        return jsonEmpty();
       }
     }
     if(object instanceof List<?>){
