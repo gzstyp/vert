@@ -138,5 +138,10 @@ public class Launcher extends AbstractVerticle {
 
     // http://127.0.0.1/api/sqlServer?route=map|list
     router.route("/api/sqlServer").blockingHandler(new SqlServerHandle(vertx));
+
+    /*通配符*/ // http://127.0.0.1/api/2 http://127.0.0.1/api
+    router.get("/api/*").blockingHandler(context->{
+      ToolClient.responseSucceed(context,"api/* 通配符请求方式成功");
+    });
   }
 }
