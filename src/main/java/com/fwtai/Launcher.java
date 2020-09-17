@@ -47,7 +47,7 @@ public class Launcher extends AbstractVerticle {
     methods.add(HttpMethod.POST);
 
     //router.route().handler(CorsHandler.create("vertx\\.io").allowedMethods(methods));//支持正则表达式
-    router.route().handler(CorsHandler.create(ConfigFiles.allowedOriginPattern).allowedMethods(methods));//支持正则表达式
+    router.route().blockingHandler(CorsHandler.create(ConfigFiles.allowedOriginPattern).allowedMethods(methods));//支持正则表达式
 
     //第三步,将router和 HttpServer 绑定
     httpServer.requestHandler(router).listen(ConfigFiles.port, http -> {
@@ -61,16 +61,16 @@ public class Launcher extends AbstractVerticle {
     });
 
     //第四步,配置Router解析url
-    router.get("/").handler(context -> {
+    router.get("/").blockingHandler(context -> {
       ToolClient.responseJson(context,ToolClient.jsonSucceed());
     });
 
-    router.route("/login").order(1).handler(context -> {
+    router.route("/login").order(1).blockingHandler(context -> {
       ToolClient.responseJson(context,ToolClient.jsonSucceed("登录成功!"));
     });
 
     // http://192.168.3.108/register?username=txh&password=000000
-    router.get("/register").handler((context) -> {
+    router.get("/register").blockingHandler((context) -> {
       final String username = context.request().getParam("username");
       final String password = context.request().getParam("password");
       final String sql = "INSERT INTO sys_user(username,`password`) VALUES (?,?)";
@@ -81,7 +81,7 @@ public class Launcher extends AbstractVerticle {
     });
 
     //获取url参数,经典模式,即url的参数 http://192.168.3.108/url?page=1&size=10
-    router.route("/url").handler(context -> {
+    router.route("/url").blockingHandler(context -> {
       final String page = context.request().getParam("page");
       final String size = context.request().getParam("size");
       final Integer pageSize = Integer.parseInt(size);
@@ -107,36 +107,36 @@ public class Launcher extends AbstractVerticle {
     });
 
     // http://192.168.3.108/rest/1
-    router.route("/rest/:kid").handler(new UserService(toolDao));
+    router.route("/rest/:kid").blockingHandler(new UserService(toolDao));
 
     //获取url参数,restful模式,用:和url上的/对应的绑定,它和vue的:Xxx="Yy"同样的意思,注意顺序! http://192.168.3.108/restful/10/30
-    router.route("/restful/:page/:size").handler(context -> {
+    router.route("/restful/:page/:size").blockingHandler(context -> {
       final String page = context.request().getParam("page");
       final String size = context.request().getParam("size");
       ToolClient.responseJson(context,ToolClient.jsonSucceed(page+",获取url参数,restful模式,"+size));
     });
 
     //获取body参数-->表单 multipart/form-data 格式,即请求头的 "Content-Type","application/x-www-form-urlencoded"
-    router.route("/form").handler(context -> {
+    router.route("/form").blockingHandler(context -> {
       final String page = context.request().getFormAttribute("page");
       final String param = context.request().getParam("page");
       ToolClient.responseJson(context,ToolClient.jsonSucceed(param + ",获取body参数-->表单form-data格式," + page));
     });
 
     //获取body参数-->json格式,即请求头的 "Content-Type","application/json"
-    router.route("/json").handler(context -> {
+    router.route("/json").blockingHandler(context -> {
       final JsonObject page = context.getBodyAsJson();
       final String json = ToolClient.createJson(200,page.toString() + "获取body参数-->json格式,"+page.encode()+",解析:"+page.getValue("page"));
       ToolClient.responseJson(context,json);
     });
 
     // http://127.0.0.1/controller
-    router.route("/controller").handler(new IndexHandle());
+    router.route("/controller").blockingHandler(new IndexHandle());
 
     // http://127.0.0.1/client
-    router.route("/client").handler(new UrlHandle(vertx));
+    router.route("/client").blockingHandler(new UrlHandle(vertx));
 
     // http://127.0.0.1/api/sqlServer?route=map|list
-    router.route("/api/sqlServer").handler(new SqlServerHandle(vertx));
+    router.route("/api/sqlServer").blockingHandler(new SqlServerHandle(vertx));
   }
 }
