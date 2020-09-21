@@ -13,7 +13,7 @@ import java.util.List;
 public final class ToolJdbc{
 
   // 用于操作数据库的客户端
-  private JDBCClient dbClient;
+  private final JDBCClient dbClient;
 
   public ToolJdbc(final Vertx vertx){
 
