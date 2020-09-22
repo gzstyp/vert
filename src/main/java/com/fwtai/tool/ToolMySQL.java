@@ -186,7 +186,7 @@ public final class ToolMySQL{
     });
   }
 
-  public void failure(final RoutingContext context,final Throwable throwable){
+  protected void failure(final RoutingContext context,final Throwable throwable){
     final String message = throwable.getMessage();
     if(message.contains("cannot be null")){
       ToolClient.responseJson(context,ToolClient.jsonParams());
