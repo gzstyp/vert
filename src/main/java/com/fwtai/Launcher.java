@@ -148,9 +148,16 @@ public class Launcher extends AbstractVerticle {
     // http://127.0.0.1/api/sqlServer?route=map|list
     router.route("/api/sqlServer").blockingHandler(new SqlServerHandle(vertx));
 
-    /*通配符*/ // http://127.0.0.1/api/2 http://127.0.0.1/api
-    router.get("/api/*").blockingHandler(context->{
-      ToolClient.responseSucceed(context,"api/* 通配符请求方式成功");
+    /*通配符*/ // http://127.0.0.1/api/v.1.0/role/1
+    router.get("/api/v.1.0/role/*").blockingHandler(context->{
+      final String query = context.request().query();
+      ToolClient.responseSucceed(context,"/api/v.1.0/role/* 通配符请求方式成功" + query);
+    });
+
+    // http://127.0.0.1/api/v.1.0/user?type=1
+    router.get("/api/v.1.0/user").blockingHandler(context->{
+      final String query = context.request().query();//query的值是 type=1
+      ToolClient.responseSucceed(context,"/api/v.1.0/user 请求方式成功" + query);
     });
   }
 }

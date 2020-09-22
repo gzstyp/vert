@@ -44,7 +44,7 @@ public final class ToolMySQL{
     client = MySQLPool.pool(vertx,connectOptions,pool);
   }
 
-  //无参数
+  //无参数 new ToolMySQL(vertx).queryList();
   public void queryList(final RoutingContext context,final String sql,final ArrayList<String> columns){
     client.getConnection((result) ->{
       if(result.succeeded()){
@@ -73,7 +73,7 @@ public final class ToolMySQL{
     });
   }
 
-  //有参数
+  //有参数 new ToolMySQL(vertx).queryList();
   public void queryList(final RoutingContext context,final String sql,final ArrayList<String> columns,final List<Object> params){
     client.getConnection((result) ->{
       if(result.succeeded()){
