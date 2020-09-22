@@ -23,7 +23,7 @@ import java.util.List;
  * @Email service@yinlz.com
  * @官网 <url>http://www.yinlz.com</url>
  */
-public final class ToolDao{
+public final class ToolMySQL{
 
   // 创建数据库连接池
   private final MySQLPool client;
@@ -40,7 +40,7 @@ public final class ToolDao{
   //配置数据库连接池
   final PoolOptions pool = new PoolOptions().setMaxSize(32);
 
-  public ToolDao(final Vertx vertx){
+  public ToolMySQL(final Vertx vertx){
     client = MySQLPool.pool(vertx,connectOptions,pool);
   }
 

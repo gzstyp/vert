@@ -10,12 +10,12 @@ import io.vertx.ext.web.RoutingContext;
 import java.util.List;
 
 /** 连接数据库操作 */
-public final class ToolJdbc{
+public final class ToolSQLServer{
 
   // 用于操作数据库的客户端
   private final JDBCClient dbClient;
 
-  public ToolJdbc(final Vertx vertx){
+  public ToolSQLServer(final Vertx vertx){
 
     // 构造数据库的连接信息
     final JsonObject dbConfig = new JsonObject();

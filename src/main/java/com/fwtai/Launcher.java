@@ -6,7 +6,7 @@ import com.fwtai.service.SqlServerHandle;
 import com.fwtai.service.UrlHandle;
 import com.fwtai.service.UserService;
 import com.fwtai.tool.ToolClient;
-import com.fwtai.tool.ToolDao;
+import com.fwtai.tool.ToolMySQL;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpMethod;
@@ -34,12 +34,12 @@ public class Launcher extends AbstractVerticle {
   //第一步,声明router,如果有重复的 path 路由的话,它匹配顺序是从上往下的,仅会执行第一个.那如何更改顺序呢？可以通过 order(x)来更改顺序,值越小越先执行!
   private Router router;
 
-  private ToolDao toolDao;
+  private ToolMySQL toolMySQL;
 
   @Override
   public void start(final Promise<Void> startPromise) throws Exception {
 
-    toolDao = new ToolDao(vertx);
+    toolMySQL = new ToolMySQL(vertx);
 
     //创建HttpServer
     final HttpServer httpServer = vertx.createHttpServer();
@@ -86,7 +86,7 @@ public class Launcher extends AbstractVerticle {
       final ArrayList<Object> params = new ArrayList<>();
       params.add(username);
       params.add(password);
-      toolDao.exeSql(context,sql,params);
+      toolMySQL.exeSql(context,sql,params);
     });
 
     //获取url参数,经典模式,即url的参数 http://192.168.3.108/url?page=1&size=10
@@ -111,12 +111,12 @@ public class Launcher extends AbstractVerticle {
       final String field = " "+kid+","+username + "," + password +" ";
 
       final String sql = "SELECT "+field+" FROM sys_user limit ?,?";
-      toolDao.queryList(context,sql,columns,params);
+      toolMySQL.queryList(context,sql,columns,params);
 
     });
 
     // http://192.168.3.108/rest/1
-    router.route("/rest/:kid").blockingHandler(new UserService(toolDao));
+    router.route("/rest/:kid").blockingHandler(new UserService(toolMySQL));
 
     //获取url参数,restful模式,用:和url上的/对应的绑定,它和vue的:Xxx="Yy"同样的意思,注意顺序! http://192.168.3.108/restful/10/30
     router.route("/restful/:page/:size").blockingHandler(context -> {

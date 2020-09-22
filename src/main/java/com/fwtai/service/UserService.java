@@ -1,6 +1,6 @@
 package com.fwtai.service;
 
-import com.fwtai.tool.ToolDao;
+import com.fwtai.tool.ToolMySQL;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
 
@@ -17,10 +17,10 @@ import java.util.ArrayList;
 */
 public final class UserService implements Handler<RoutingContext>{
 
-  private final ToolDao toolDao;
+  private final ToolMySQL toolMySQL;
 
-  public UserService(final ToolDao toolDao){
-    this.toolDao = toolDao;
+  public UserService(final ToolMySQL toolMySQL){
+    this.toolMySQL = toolMySQL;
   }
 
   @Override
@@ -41,6 +41,6 @@ public final class UserService implements Handler<RoutingContext>{
 
     final String field = " "+kid+","+username + "," + password +" ";
     final String sql = "SELECT "+field+" FROM sys_user where kid = ? limit 1";
-    toolDao.queryMap(context,sql,columns,params);
+    toolMySQL.queryMap(context,sql,columns,params);
   }
 }

@@ -1,7 +1,7 @@
 package com.fwtai.service;
 
 import com.fwtai.tool.ToolClient;
-import com.fwtai.tool.ToolJdbc;
+import com.fwtai.tool.ToolSQLServer;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
@@ -49,12 +49,12 @@ public class SqlServerHandle implements Handler<RoutingContext>{
     final String kid = request.getParam(_kid);
     final String sqlMap = "SELECT de.ID,de.Name from Device de WHERE de.ID = ?";
     final JsonArray params = new JsonArray().add(kid);
-    new ToolJdbc(vertx).queryMap(sqlMap,context,params);
+    new ToolSQLServer(vertx).queryMap(sqlMap,context,params);
   }
 
   public void list(final RoutingContext context){
     //final String sqlList = "SELECT cl.DeviceID,cl.Val value,cl.SeqType,de.Name name from Channel cl LEFT JOIN Device de on de.ID = cl.DeviceID";
     final String sqlList = "SELECT ID,Name,Url,Sort,Style FROM Build";
-    new ToolJdbc(vertx).queryList(sqlList,context,null);
+    new ToolSQLServer(vertx).queryList(sqlList,context,null);
   }
 }
