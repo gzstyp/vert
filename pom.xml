@@ -123,6 +123,19 @@
               </artifactSet>
               <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar
               </outputFile>
+              <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
+              <createDependencyReducedPom>true</createDependencyReducedPom>
+              <!--过滤排除-->
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <!--<exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>-->
+                  </excludes>
+                </filter>
+              </filters>
             </configuration>
           </execution>
         </executions>
