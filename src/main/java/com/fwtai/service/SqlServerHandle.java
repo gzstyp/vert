@@ -53,8 +53,8 @@ public class SqlServerHandle implements Handler<RoutingContext>{
   }
 
   public void list(final RoutingContext context){
-    //final String sqlList = "SELECT cl.DeviceID,cl.Val value,cl.SeqType,de.Name name from Channel cl LEFT JOIN Device de on de.ID = cl.DeviceID";
-    final String sqlList = "SELECT ID,Name,Url,Sort,Style FROM Build";
+    final String sqlList = "SELECT cl.DeviceID,cl.Val value,cl.SeqType,de.Name name from Channel cl LEFT JOIN Device de on de.ID = cl.DeviceID";
+    //final String sqlList = "SELECT ID,Name,Url,Sort,Style FROM Build";
     new ToolSQLServer(vertx).queryList(sqlList,context,null);
   }
 }

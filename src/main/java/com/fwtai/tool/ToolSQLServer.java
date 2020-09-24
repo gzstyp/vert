@@ -19,10 +19,10 @@ public final class ToolSQLServer{
 
     // 构造数据库的连接信息
     final JsonObject dbConfig = new JsonObject();
-    dbConfig.put("url", "jdbc:sqlserver://192.168.3.209:1433;DatabaseName=gsomewsd2020820");
+    dbConfig.put("url", "jdbc:sqlserver://192.168.4.244:1433;DatabaseName=gsomewsd2020820");
     dbConfig.put("driver_class","com.microsoft.sqlserver.jdbc.SQLServerDriver");
     dbConfig.put("user","sa");
-    dbConfig.put("password","GZS5630typ");
+    dbConfig.put("password","GZJZ@123");
 
     // 创建客户端
     dbClient = JDBCClient.createShared(vertx,dbConfig);
