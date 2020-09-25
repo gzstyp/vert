@@ -159,5 +159,10 @@ public class Launcher extends AbstractVerticle {
       final String query = context.request().query();//query的值是 type=1
       ToolClient.responseSucceed(context,"/api/v.1.0/user 请求方式成功" + query);
     });
+
+    // 重定向302, http://127.0.0.1/redirect
+    router.get("/redirect").blockingHandler(context->{
+      context.response().putHeader("location","http://www.yinlz.com").setStatusCode(302).end();
+    });
   }
 }
