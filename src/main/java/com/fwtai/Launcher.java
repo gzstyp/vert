@@ -9,6 +9,8 @@ import com.fwtai.tool.ToolClient;
 import com.fwtai.tool.ToolMySQL;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
@@ -38,6 +40,10 @@ public class Launcher extends AbstractVerticle {
 
   @Override
   public void start(final Promise<Void> startPromise) throws Exception {
+
+    final VertxOptions options = new VertxOptions();
+    options.setWorkerPoolSize(64);//设置支持的Worker线程的最大数量
+    final Vertx vertx = Vertx.vertx(options);
 
     toolMySQL = new ToolMySQL(vertx);
 
@@ -162,7 +168,7 @@ public class Launcher extends AbstractVerticle {
 
     // 重定向302, http://127.0.0.1/redirect
     router.get("/redirect").blockingHandler(context->{
-      context.response().putHeader("location","http://www.yinlz.com").setStatusCode(302).end();
+      context.response().putHeader("Location","http://www.yinlz.com").setStatusCode(302).end();
     });
   }
 }
