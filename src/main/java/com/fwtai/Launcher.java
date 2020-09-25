@@ -180,5 +180,14 @@ public class Launcher extends AbstractVerticle {
     router.get("/redirect").blockingHandler(context->{
       context.response().putHeader("Location","http://www.yinlz.com").setStatusCode(302).end();
     });
+
+    //退出-重定向
+    router.get("/logout").handler(context -> {
+      context.clearUser();
+      context.response()
+        .setStatusCode(302)
+        .putHeader("Location", "/")
+        .end();
+    });
   }
 }
