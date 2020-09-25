@@ -48,10 +48,20 @@ public class Launcher extends AbstractVerticle {
     toolMySQL = new ToolMySQL(vertx);
 
     //创建HttpServer
-    final HttpServer httpServer = vertx.createHttpServer();
+    final HttpServer server = vertx.createHttpServer();
 
     //第二步,初始化|实例化 Router
     router = Router.router(vertx);
+
+    //二级路由开始
+    final Router restAPI = Router.router(vertx);
+    //访问方式: http://192.168.4.185/productsApi/products/485
+    restAPI.get("/products/:kid").handler(context -> {
+      final String kid = context.request().getParam("kid");
+      ToolClient.responseSucceed(context,kid+",二级路由请求成功");
+    });
+    router.mountSubRouter("/productsApi",restAPI);
+    //二级路由结束
 
     //若想要或body的参数[含表单的form-data和json格式]需要添加,可选
     router.route().handler(BodyHandler.create());//支持文件上传的目录,ctrl + p 查看
@@ -65,7 +75,7 @@ public class Launcher extends AbstractVerticle {
     router.route().blockingHandler(CorsHandler.create(ConfigFiles.allowedOriginPattern).allowedMethods(methods));//支持正则表达式
 
     //第三步,将router和 HttpServer 绑定
-    httpServer.requestHandler(router).listen(ConfigFiles.port, http -> {
+    server.requestHandler(router).listen(ConfigFiles.port, http -> {
       if (http.succeeded()) {
         startPromise.complete();
         System.out.println("---应用启动成功---"+ConfigFiles.port);
