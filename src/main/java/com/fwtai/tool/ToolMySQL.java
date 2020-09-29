@@ -288,4 +288,14 @@ public final class ToolMySQL{
     });
     return promise.future();//重点,固定写法
   }
+
+  //拼接分页参数,注意添加顺序
+  public List<Object> pageParams(final Integer pageIndex,Integer pageSize){
+    pageSize = (pageSize > 100) ? 50 : pageSize;
+    final Integer section = (pageIndex - 1) * pageSize;
+    final ArrayList<Object> params = new ArrayList<>();
+    params.add(section);
+    params.add(pageSize);
+    return params;
+  }
 }

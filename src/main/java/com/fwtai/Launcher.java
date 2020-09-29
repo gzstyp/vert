@@ -23,6 +23,7 @@ import io.vertx.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -119,12 +120,11 @@ public class Launcher extends AbstractVerticle {
     router.route("/url").blockingHandler(context -> {
       final String page = context.request().getParam("page");
       final String size = context.request().getParam("size");
-      final Integer pageSize = Integer.parseInt(size);
-      final Integer section = (Integer.parseInt(page) - 1) * pageSize;
-      final ArrayList<Object> params = new ArrayList<>();
-      params.add(section);
-      params.add(pageSize);
-      final String sql = "SELECT kid,username,password FROM sys_user limit ?,?";
+      final List<Object> params = new ArrayList<>();
+      params.add("11");
+      final List<Object> result = toolMySQL.pageParams(Integer.parseInt(page),Integer.parseInt(size));
+      params.addAll(result);//注意添加顺序!!!
+      final String sql = "SELECT kid,username,password FROM sys_user where kid = ? limit ?,?";
       toolMySQL.queryList(context,sql,params);
       logger.info("请求url为/url,获取数据列表");
     });
