@@ -26,7 +26,10 @@ public final class TemplateService implements Handler<RoutingContext>{
 
   @Override
   public void handle(final RoutingContext context){
-    thymeleaf.render(new JsonObject(),"templates/index.html",bufferAsyncResult ->{
+    final JsonObject json = new JsonObject();
+    json.put("name","田应平,从后端返回数据");
+    json.put("age","35");
+    thymeleaf.render(json,"templates/index.html",bufferAsyncResult ->{
       if(bufferAsyncResult.succeeded()){
         context.response().putHeader("content-type","text/html;charset=utf-8").end(bufferAsyncResult.result());
       } else {

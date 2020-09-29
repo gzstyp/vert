@@ -189,7 +189,9 @@ public class Launcher extends AbstractVerticle {
 
     // 前端模版引擎用法,http://127.0.0.1/thymeleaf
     router.route("/thymeleaf").blockingHandler(context->{
-      thymeleaf.render(new JsonObject(),"templates/index.html",bufferAsyncResult ->{
+      final JsonObject json = new JsonObject();
+      json.put("name","田应平,从后端返回数据");
+      thymeleaf.render(json,"templates/index.html",bufferAsyncResult ->{
         if(bufferAsyncResult.succeeded()){
           context.response().putHeader("content-type","text/html;charset=utf-8").end(bufferAsyncResult.result());
         }else{
