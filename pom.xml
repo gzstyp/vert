@@ -71,6 +71,17 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web-client</artifactId>
     </dependency>
+    <!--thymeleaf开始-->
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web-templ-thymeleaf</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.7.30</version>
+    </dependency>
+    <!--thymeleaf结束-->
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-junit5</artifactId>

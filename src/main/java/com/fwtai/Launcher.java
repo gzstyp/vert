@@ -3,6 +3,7 @@ package com.fwtai;
 import com.fwtai.config.ConfigFiles;
 import com.fwtai.service.IndexHandle;
 import com.fwtai.service.SqlServerHandle;
+import com.fwtai.service.TemplateService;
 import com.fwtai.service.UrlHandle;
 import com.fwtai.service.UserService;
 import com.fwtai.tool.ToolClient;
@@ -15,6 +16,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
+import io.vertx.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,10 +38,14 @@ public class Launcher extends AbstractVerticle {
 
   private ToolMySQL toolMySQL;
 
+  private ThymeleafTemplateEngine thymeleaf;//Thymeleaf模版引擎
+
   @Override
   public void start(final Promise<Void> startPromise) throws Exception {
 
     toolMySQL = new ToolMySQL(vertx);
+
+    thymeleaf = ThymeleafTemplateEngine.create(vertx);
 
     //创建HttpServer
     final HttpServer server = vertx.createHttpServer();
@@ -180,5 +186,19 @@ public class Launcher extends AbstractVerticle {
       context.clearUser();
       context.response().setStatusCode(302).putHeader("Location","/").end();
     });
+
+    // 前端模版引擎用法,http://127.0.0.1/thymeleaf
+    router.route("/thymeleaf").blockingHandler(context->{
+      thymeleaf.render(new JsonObject(),"templates/index.html",bufferAsyncResult ->{
+        if(bufferAsyncResult.succeeded()){
+          context.response().putHeader("content-type","text/html;charset=utf-8").end(bufferAsyncResult.result());
+        }else{
+          ToolClient.responseSucceed(context,"加载页面失败");
+        }
+      });
+    });
+
+    // 前端模版引擎用法,http://127.0.0.1/thymeleaf2
+    router.route("/thymeleaf2").blockingHandler(new TemplateService(vertx));
   }
 }
