@@ -16,6 +16,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
+import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
 
 import java.util.ArrayList;
@@ -52,6 +53,9 @@ public class Launcher extends AbstractVerticle {
 
     //第二步,初始化|实例化 Router
     router = Router.router(vertx);
+
+    //处理静态资源,整合静态资源文件,前端无需写webroot目录,因为默认就是 webroot 目录下的文件
+    router.route("/static/*").handler(StaticHandler.create());
 
     //二级路由开始
     final Router restAPI = Router.router(vertx);
