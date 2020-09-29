@@ -83,6 +83,7 @@ public final class ToolMySQL{
             //操作数据库成功
             ToolClient.responseJson(context,ToolClient.queryJson(list));
           }else{
+            logger.error("queryList()出现异常,连接数据库失败:"+sql);
             //操作数据库失败
             final String json = ToolClient.createJson(199,"连接数据库失败");
             ToolClient.responseJson(context,json);
@@ -114,6 +115,7 @@ public final class ToolMySQL{
             //操作数据库成功
             ToolClient.responseJson(context,ToolClient.queryJson(list));
           }else{
+            logger.error("queryList()出现异常,连接数据库失败:"+sql);
             //操作数据库失败
             final String json = ToolClient.createJson(199,"连接数据库失败");
             ToolClient.responseJson(context,json);
@@ -141,6 +143,7 @@ public final class ToolMySQL{
             });
             ToolClient.responseJson(context,ToolClient.queryJson(jsonObject));
           }else{
+            logger.error("queryMap()出现异常,连接数据库失败:"+sql);
             final String json = ToolClient.createJson(199,"连接数据库失败");
             ToolClient.responseJson(context,json);
           }
@@ -167,6 +170,7 @@ public final class ToolMySQL{
             });
             ToolClient.responseJson(context,ToolClient.queryJson(jsonObject));
           }else{
+            logger.error("queryMap()出现异常,连接数据库失败:"+sql);
             final String json = ToolClient.createJson(199,"连接数据库失败");
             ToolClient.responseJson(context,json);
           }
@@ -186,6 +190,7 @@ public final class ToolMySQL{
             final int count = rowSet.rowCount();
             ToolClient.responseJson(context,ToolClient.executeRows(count));
           }else{
+            logger.error("exeSql()出现异常,执行sql:"+sql);
             failure(context,rows.cause());
           }
         });
@@ -222,7 +227,24 @@ public final class ToolMySQL{
     }
   }
 
-  public void queryHashMap(final String sql,final List<Object> params){
+  protected void queryHashMap(final RoutingContext context,final String sql,final List<Object> params){
+    getCon().compose(connection -> getRows(connection,sql,params)).onSuccess(rowSet ->{
+      final List<String> columns = rowSet.columnsNames();
+      final JsonObject jsonObject = new JsonObject();
+      rowSet.forEach(item ->{
+        for(int i = 0; i < columns.size(); i++){
+          final String column = columns.get(i);
+          jsonObject.put(column,item.getValue(column));
+        }
+      });
+      ToolClient.responseJson(context,ToolClient.queryJson(jsonObject));
+    }).onFailure(throwable ->{
+      logger.error("queryListData()获取数据出现异常",throwable);
+      ToolClient.responseJson(context,ToolClient.jsonFailure());
+    });
+  }
+
+  protected void queryListData(final RoutingContext context,final String sql,final List<Object> params){
     getCon().compose(connection -> getRows(connection,sql,params)).onSuccess(rowSet ->{
       final List<String> columns = rowSet.columnsNames();
       final ArrayList<JsonObject> list = new ArrayList<>();
@@ -234,7 +256,10 @@ public final class ToolMySQL{
         }
         list.add(jsonObject);
       });
-      System.out.println(list);
+      ToolClient.responseJson(context,ToolClient.queryJson(list));
+    }).onFailure(throwable ->{
+      logger.error("queryListData()获取数据出现异常",throwable);
+      ToolClient.responseJson(context,ToolClient.jsonFailure());
     });
   }
 
@@ -243,13 +268,12 @@ public final class ToolMySQL{
     final Promise<SqlConnection> promise = Promise.promise();
     client.getConnection(asyncResult ->{
       if(asyncResult.succeeded()){
-        //重点,固定写法
-        promise.complete(asyncResult.result());
+        promise.complete(asyncResult.result());//重点,固定写法
       }else{
-        promise.fail(asyncResult.cause());
+        promise.fail(asyncResult.cause());//重点,固定写法
       }
     });
-    return promise.future();
+    return promise.future();//重点,固定写法
   }
 
   // ②用获取到的连接查询数据库
@@ -257,11 +281,11 @@ public final class ToolMySQL{
     final Promise<RowSet<Row>> promise = Promise.promise();
     connection.preparedQuery(sql).execute(Tuple.wrap(params),handler ->{
       if(handler.succeeded()){
-        promise.complete(handler.result());
+        promise.complete(handler.result());//重点,固定写法
       }else{
-        promise.fail(handler.cause());
+        promise.fail(handler.cause());//重点,固定写法
       }
     });
-    return promise.future();
+    return promise.future();//重点,固定写法
   }
 }
