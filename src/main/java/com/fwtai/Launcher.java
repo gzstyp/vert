@@ -8,6 +8,8 @@ import com.fwtai.service.UrlHandle;
 import com.fwtai.service.UserService;
 import com.fwtai.tool.ToolClient;
 import com.fwtai.tool.ToolMySQL;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.Log4JLoggerFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpMethod;
@@ -34,6 +36,8 @@ import java.util.Set;
 */
 public class Launcher extends AbstractVerticle {
 
+  final InternalLogger logger = Log4JLoggerFactory.getInstance(getClass());
+
   //第一步,声明router,如果有重复的 path 路由的话,它匹配顺序是从上往下的,仅会执行第一个.那如何更改顺序呢？可以通过 order(x)来更改顺序,值越小越先执行!
   private Router router;
 
@@ -46,7 +50,7 @@ public class Launcher extends AbstractVerticle {
 
     toolMySQL = new ToolMySQL(vertx);
 
-    thymeleaf = ThymeleafTemplateEngine.create(vertx);
+    thymeleaf = ThymeleafTemplateEngine.create(vertx);//实例化
 
     //创建HttpServer
     final HttpServer server = vertx.createHttpServer();
@@ -134,7 +138,7 @@ public class Launcher extends AbstractVerticle {
 
       final String sql = "SELECT "+field+" FROM sys_user limit ?,?";
       toolMySQL.queryList(context,sql,columns,params);
-
+      logger.info("请求url为/url,获取数据列表");
     });
 
     // http://192.168.3.108/rest/1

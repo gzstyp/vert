@@ -1,5 +1,8 @@
 package com.fwtai.tool;
 
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.Log4JLoggerFactory;
+import io.vertx.config.ConfigRetriever;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
@@ -25,23 +28,35 @@ import java.util.List;
  */
 public final class ToolMySQL{
 
+  final InternalLogger logger = Log4JLoggerFactory.getInstance(getClass());
+
+  private ConfigRetriever retriever;//配置文件
+
   // 创建数据库连接池
-  private final MySQLPool client;
+  private MySQLPool client;
 
-  final MySQLConnectOptions connectOptions = new MySQLConnectOptions()
-    .setPort(3306)
-    .setHost("192.168.3.66")
-    .setDatabase("vertx")
-    .setUser("root")
-    .setPassword("rootFwtai")
-    .setCharset("utf8mb4")
-    .setSsl(false);
-
-  //配置数据库连接池
-  final PoolOptions pool = new PoolOptions().setMaxSize(32);
+  private MySQLConnectOptions connectOptions;
 
   public ToolMySQL(final Vertx vertx){
-    client = MySQLPool.pool(vertx,connectOptions,pool);
+    retriever = ConfigRetriever.create(vertx);//实例化
+    retriever.getConfig(ar -> {
+      if(ar.succeeded()) {
+        final JsonObject config = ar.result();
+        connectOptions = new MySQLConnectOptions()
+          .setPort(config.getInteger("port"))
+          .setHost(config.getString("host"))
+          .setDatabase(config.getString("database"))
+          .setUser(config.getString("username"))
+          .setPassword(config.getString("password"))
+          .setCharset(config.getString("charset"))
+          .setSsl(config.getBoolean("ssl"));
+        //配置数据库连接池
+        final PoolOptions pool = new PoolOptions().setMaxSize(config.getInteger("maxSize",16));
+        client = MySQLPool.pool(vertx,connectOptions,pool);
+      } else {
+        logger.error("读取数据库配置文件失败");
+      }
+    });
   }
 
   //无参数 new ToolMySQL(vertx).queryList();
