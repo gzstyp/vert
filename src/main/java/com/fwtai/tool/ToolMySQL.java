@@ -70,9 +70,9 @@ public final class ToolMySQL{
           conn.close();//推荐写在第1行,防止忘记释放资源
           if(rows.succeeded()){
             final ArrayList<JsonObject> list = new ArrayList<>();
-            final RowSet<Row> rowRowSet = rows.result();
-            final List<String> columns = rowRowSet.columnsNames();
-            rowRowSet.forEach((item) ->{
+            final RowSet<Row> rowSet = rows.result();
+            final List<String> columns = rowSet.columnsNames();
+            rowSet.forEach((item) ->{
               final JsonObject jsonObject = new JsonObject();
               for(int i = 0; i < columns.size(); i++){
                 final String column = columns.get(i);
@@ -101,9 +101,9 @@ public final class ToolMySQL{
           conn.close();//推荐写在第1行,防止忘记释放资源
           if(rows.succeeded()){
             final ArrayList<JsonObject> list = new ArrayList<>();
-            final RowSet<Row> rowRowSet = rows.result();
-            final List<String> columns = rowRowSet.columnsNames();
-            rowRowSet.forEach((item) ->{
+            final RowSet<Row> rowSet = rows.result();
+            final List<String> columns = rowSet.columnsNames();
+            rowSet.forEach((item) ->{
               final JsonObject jsonObject = new JsonObject();
               for(int i = 0; i < columns.size(); i++){
                 final String column = columns.get(i);
@@ -223,13 +223,10 @@ public final class ToolMySQL{
   }
 
   public void queryHashMap(final String sql,final List<Object> params){
-    getCon().compose(connection -> getRows(connection,sql,params)).onSuccess(rows ->{
-      final int total = rows.size();
-      for(int i = 0; i < total; i++){
-      }
-      final List<String> columns = rows.columnsNames();
+    getCon().compose(connection -> getRows(connection,sql,params)).onSuccess(rowSet ->{
+      final List<String> columns = rowSet.columnsNames();
       final ArrayList<JsonObject> list = new ArrayList<>();
-      rows.forEach(item ->{
+      rowSet.forEach(item ->{
         final JsonObject jsonObject = new JsonObject();
         for(int i = 0; i < columns.size(); i++){
           final String column = columns.get(i);
