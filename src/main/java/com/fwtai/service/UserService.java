@@ -29,18 +29,7 @@ public final class UserService implements Handler<RoutingContext>{
 
     final ArrayList<Object> params = new ArrayList<>();
     params.add(id);
-
-    final String kid = "kid";
-    final String username = "username";
-    final String password = "password";
-
-    final ArrayList<String> columns = new ArrayList<>();
-    columns.add(kid);
-    columns.add(username);
-    columns.add(password);
-
-    final String field = " "+kid+","+username + "," + password +" ";
-    final String sql = "SELECT "+field+" FROM sys_user where kid = ? limit 1";
-    toolMySQL.queryMap(context,sql,columns,params);
+    final String sql = "SELECT kid,username,password FROM sys_user where kid = ? limit 1";
+    toolMySQL.queryMap(context,sql,params);
   }
 }

@@ -16,6 +16,8 @@
     当项目依赖其他jar包的时候，打出的jar包执行出错，抛出这个异常。
     原因：因为依赖jar包中的META-INF中有多余的.SF文件与当前jar包冲突
     解决：在打包部署前删除依赖jar包的 META-INF的 MSFTSIG.SF文件
+
+    本项目功能有 日志|读取配置文件|静态资源的访问|链式调用
   </description>
 
   <properties>

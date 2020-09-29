@@ -3,6 +3,8 @@ package com.fwtai.tool;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.Log4JLoggerFactory;
 import io.vertx.config.ConfigRetriever;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
@@ -60,7 +62,7 @@ public final class ToolMySQL{
   }
 
   //无参数 new ToolMySQL(vertx).queryList();
-  public void queryList(final RoutingContext context,final String sql,final ArrayList<String> columns){
+  public void queryList(final RoutingContext context,final String sql){
     client.getConnection((result) ->{
       if(result.succeeded()){
         final SqlConnection conn = result.result();
@@ -68,7 +70,9 @@ public final class ToolMySQL{
           conn.close();//推荐写在第1行,防止忘记释放资源
           if(rows.succeeded()){
             final ArrayList<JsonObject> list = new ArrayList<>();
-            rows.result().forEach((item) ->{
+            final RowSet<Row> rowRowSet = rows.result();
+            final List<String> columns = rowRowSet.columnsNames();
+            rowRowSet.forEach((item) ->{
               final JsonObject jsonObject = new JsonObject();
               for(int i = 0; i < columns.size(); i++){
                 final String column = columns.get(i);
@@ -89,7 +93,7 @@ public final class ToolMySQL{
   }
 
   //有参数 new ToolMySQL(vertx).queryList();
-  public void queryList(final RoutingContext context,final String sql,final ArrayList<String> columns,final List<Object> params){
+  public void queryList(final RoutingContext context,final String sql,final List<Object> params){
     client.getConnection((result) ->{
       if(result.succeeded()){
         final SqlConnection conn = result.result();
@@ -97,7 +101,9 @@ public final class ToolMySQL{
           conn.close();//推荐写在第1行,防止忘记释放资源
           if(rows.succeeded()){
             final ArrayList<JsonObject> list = new ArrayList<>();
-            rows.result().forEach((item) ->{
+            final RowSet<Row> rowRowSet = rows.result();
+            final List<String> columns = rowRowSet.columnsNames();
+            rowRowSet.forEach((item) ->{
               final JsonObject jsonObject = new JsonObject();
               for(int i = 0; i < columns.size(); i++){
                 final String column = columns.get(i);
@@ -117,7 +123,7 @@ public final class ToolMySQL{
     });
   }
 
-  public void queryMap(final RoutingContext context,final String sql,final ArrayList<String> columns){
+  public void queryMap(final RoutingContext context,final String sql){
     client.getConnection((result) ->{
       if(result.succeeded()){
         final SqlConnection conn = result.result();
@@ -125,7 +131,9 @@ public final class ToolMySQL{
           conn.close();//推荐写在第1行,防止忘记释放资源
           if(rows.succeeded()){
             final JsonObject jsonObject = new JsonObject();
-            rows.result().forEach((item) ->{
+            final RowSet<Row> rowSet = rows.result();
+            final List<String> columns = rowSet.columnsNames();
+            rowSet.forEach((item) ->{
               for(int i = 0; i < columns.size();i++){
                 final String column = columns.get(i);
                 jsonObject.put(column,item.getValue(column));
@@ -141,7 +149,7 @@ public final class ToolMySQL{
     });
   }
 
-  public void queryMap(final RoutingContext context,final String sql,final ArrayList<String> columns,final List<Object> params){
+  public void queryMap(final RoutingContext context,final String sql,final List<Object> params){
     client.getConnection((result) ->{
       if(result.succeeded()){
         final SqlConnection conn = result.result();
@@ -149,7 +157,9 @@ public final class ToolMySQL{
           conn.close();//推荐写在第1行,防止忘记释放资源
           if(rows.succeeded()){
             final JsonObject jsonObject = new JsonObject();
-            rows.result().forEach((item) ->{
+            final RowSet<Row> rowSet = rows.result();
+            final List<String> columns = rowSet.columnsNames();
+            rowSet.forEach((item) ->{
               for(int i = 0; i < columns.size();i++){
                 final String column = columns.get(i);
                 jsonObject.put(column,item.getValue(column));
@@ -210,5 +220,51 @@ public final class ToolMySQL{
     }else{
       ToolClient.responseJson(context,ToolClient.jsonFailure());
     }
+  }
+
+  public void queryHashMap(final String sql,final List<Object> params){
+    getCon().compose(connection -> getRows(connection,sql,params)).onSuccess(rows ->{
+      final int total = rows.size();
+      for(int i = 0; i < total; i++){
+      }
+      final List<String> columns = rows.columnsNames();
+      final ArrayList<JsonObject> list = new ArrayList<>();
+      rows.forEach(item ->{
+        final JsonObject jsonObject = new JsonObject();
+        for(int i = 0; i < columns.size(); i++){
+          final String column = columns.get(i);
+          jsonObject.put(column,item.getValue(column));
+        }
+        list.add(jsonObject);
+      });
+      System.out.println(list);
+    });
+  }
+
+  // ①获取数据库连接,通过链式调用;异步+响应式的链式调用示例,有且只有包含 Handler + AsyncResult 才能封装成链式调用
+  private Future<SqlConnection> getCon(){
+    final Promise<SqlConnection> promise = Promise.promise();
+    client.getConnection(asyncResult ->{
+      if(asyncResult.succeeded()){
+        //重点,固定写法
+        promise.complete(asyncResult.result());
+      }else{
+        promise.fail(asyncResult.cause());
+      }
+    });
+    return promise.future();
+  }
+
+  // ②用获取到的连接查询数据库
+  private Future<RowSet<Row>> getRows(final SqlConnection connection,final String sql,final List<Object> params){
+    final Promise<RowSet<Row>> promise = Promise.promise();
+    connection.preparedQuery(sql).execute(Tuple.wrap(params),handler ->{
+      if(handler.succeeded()){
+        promise.complete(handler.result());
+      }else{
+        promise.fail(handler.cause());
+      }
+    });
+    return promise.future();
   }
 }

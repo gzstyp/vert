@@ -124,20 +124,8 @@ public class Launcher extends AbstractVerticle {
       final ArrayList<Object> params = new ArrayList<>();
       params.add(section);
       params.add(pageSize);
-
-      final String kid = "kid";
-      final String username = "username";
-      final String password = "password";
-
-      final ArrayList<String> columns = new ArrayList<>();
-      columns.add(kid);
-      columns.add(username);
-      columns.add(password);
-
-      final String field = " "+kid+","+username + "," + password +" ";
-
-      final String sql = "SELECT "+field+" FROM sys_user limit ?,?";
-      toolMySQL.queryList(context,sql,columns,params);
+      final String sql = "SELECT kid,username,password FROM sys_user limit ?,?";
+      toolMySQL.queryList(context,sql,params);
       logger.info("请求url为/url,获取数据列表");
     });
 
