@@ -32,15 +32,13 @@ public final class ToolMySQL{
 
   final InternalLogger logger = Log4JLoggerFactory.getInstance(getClass());
 
-  private ConfigRetriever retriever;//配置文件
-
   // 创建数据库连接池
   private MySQLPool client;
 
   private MySQLConnectOptions connectOptions;
 
   public ToolMySQL(final Vertx vertx){
-    retriever = ConfigRetriever.create(vertx);//实例化
+    final ConfigRetriever retriever = ConfigRetriever.create(vertx);//实例化配置文件
     retriever.getConfig(ar -> {
       if(ar.succeeded()) {
         final JsonObject config = ar.result();
