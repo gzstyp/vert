@@ -22,10 +22,12 @@ import io.vertx.ext.auth.jwt.impl.JWTUser;
 public class JwtAuthVerticle extends AbstractVerticle {
 
   private JWTAuthOptions config = new JWTAuthOptions()
-    .addPubSecKey(new PubSecKeyOptions()
+    .addPubSecKey(
+      new PubSecKeyOptions()
       .setAlgorithm("HS256")
-      .setPublicKey("Www_Yinlz0Com")
-      .setSymmetric(true));
+      .setPublicKey("Www_Yinlz0Com2020DWC.cloud")
+      .setSymmetric(true)
+    );
 
   private JWTAuth jwtAuth = JWTAuth.create(vertx,config);
 
