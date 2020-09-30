@@ -62,7 +62,7 @@ public final class ToolMySQL{
   }
 
   //无参数 new ToolMySQL(vertx).queryList();
-  public void queryList(final RoutingContext context,final String sql){
+  public final void queryList(final RoutingContext context,final String sql){
     client.getConnection((result) ->{
       if(result.succeeded()){
         final SqlConnection conn = result.result();
@@ -94,7 +94,7 @@ public final class ToolMySQL{
   }
 
   //有参数 new ToolMySQL(vertx).queryList();
-  public void queryList(final RoutingContext context,final String sql,final List<Object> params){
+  public final void queryList(final RoutingContext context,final String sql,final List<Object> params){
     client.getConnection((result) ->{
       if(result.succeeded()){
         final SqlConnection conn = result.result();
@@ -125,7 +125,7 @@ public final class ToolMySQL{
     });
   }
 
-  public void queryMap(final RoutingContext context,final String sql){
+  public final void queryMap(final RoutingContext context,final String sql){
     client.getConnection((result) ->{
       if(result.succeeded()){
         final SqlConnection conn = result.result();
@@ -152,7 +152,7 @@ public final class ToolMySQL{
     });
   }
 
-  public void queryMap(final RoutingContext context,final String sql,final List<Object> params){
+  public final void queryMap(final RoutingContext context,final String sql,final List<Object> params){
     client.getConnection((result) ->{
       if(result.succeeded()){
         final SqlConnection conn = result.result();
@@ -179,7 +179,7 @@ public final class ToolMySQL{
     });
   }
 
-  public void exeSql(final RoutingContext context,final String sql){
+  public final void exeSql(final RoutingContext context,final String sql){
     client.getConnection((result) ->{
       if(result.succeeded()){
         final SqlConnection conn = result.result();
@@ -198,7 +198,7 @@ public final class ToolMySQL{
     });
   }
 
-  public void exeSql(final RoutingContext context,final String sql,final List<Object> params){
+  public final void exeSql(final RoutingContext context,final String sql,final List<Object> params){
     client.getConnection((result) ->{
       if(result.succeeded()){
         final SqlConnection conn = result.result();
@@ -227,7 +227,7 @@ public final class ToolMySQL{
     }
   }
 
-  protected void queryHashMap(final RoutingContext context,final String sql,final List<Object> params){
+  protected final void queryHashMap(final RoutingContext context,final String sql,final List<Object> params){
     getCon().compose(connection -> getRows(connection,sql,params)).onSuccess(rowSet ->{
       final List<String> columns = rowSet.columnsNames();
       final JsonObject jsonObject = new JsonObject();
@@ -244,7 +244,7 @@ public final class ToolMySQL{
     });
   }
 
-  protected void queryListData(final RoutingContext context,final String sql,final List<Object> params){
+  protected final void queryListData(final RoutingContext context,final String sql,final List<Object> params){
     getCon().compose(connection -> getRows(connection,sql,params)).onSuccess(rowSet ->{
       final List<String> columns = rowSet.columnsNames();
       final ArrayList<JsonObject> list = new ArrayList<>();
@@ -290,7 +290,7 @@ public final class ToolMySQL{
   }
 
   //拼接分页参数,注意添加顺序
-  public List<Object> pageParams(final Integer pageIndex,Integer pageSize){
+  public final List<Object> pageParams(final Integer pageIndex,Integer pageSize){
     pageSize = (pageSize > 100) ? 50 : pageSize;
     final Integer section = (pageIndex - 1) * pageSize;
     final ArrayList<Object> params = new ArrayList<>();
