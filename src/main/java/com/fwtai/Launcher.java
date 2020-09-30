@@ -1,6 +1,5 @@
 package com.fwtai;
 
-import com.fwtai.config.ConfigFiles;
 import com.fwtai.service.IndexHandle;
 import com.fwtai.service.SqlServerHandle;
 import com.fwtai.service.TemplateService;
@@ -86,19 +85,19 @@ public class Launcher extends AbstractVerticle {
     methods.add(HttpMethod.GET);
     methods.add(HttpMethod.POST);
 
-    //router.route().handler(CorsHandler.create("vertx\\.io").allowedMethods(methods));//支持正则表达式
-    router.route().blockingHandler(CorsHandler.create(ConfigFiles.allowedOriginPattern).allowedMethods(methods));//支持正则表达式
-
     ToolLambda.getConfig(retriever).onSuccess(config ->{
-      //第三步,将router和 HttpServer 绑定
       final Integer port = config.getInteger("appPort");
-      server.requestHandler(router).listen(port, http -> {
-        if (http.succeeded()) {
-          startPromise.complete();
+      final String allowedOrigin = config.getString("allowedOrigin");
+      //router.route().handler(CorsHandler.create("vertx\\.io").allowedMethods(methods));//支持正则表达式
+      router.route().blockingHandler(CorsHandler.create(allowedOrigin).allowedMethods(methods));//支持正则表达式
+      //第三步,将router和 HttpServer 绑定[若是使用配置文件则这样实例化,如果不配置文件则把它挪动到lambda外边即可]
+      server.requestHandler(router).listen(port,http -> {
+        if (http.succeeded()){
+          //startPromise.complete();
           logger.info("---应用启动成功---"+port);
         } else {
-          startPromise.fail(http.cause());
-          logger.error("Launcher应用启动失败");
+          //startPromise.fail(http.cause());
+          logger.error("Launcher应用启动失败,"+http.cause());
         }
       });
     }).onFailure(throwable->{

@@ -1,5 +1,6 @@
 package com.fwtai.tool;
 
+import com.fwtai.config.ConfigFiles;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.Log4JLoggerFactory;
 import io.vertx.config.ConfigRetriever;
@@ -288,7 +289,7 @@ public final class ToolMySQL{
 
   //拼接分页参数,注意添加顺序
   public final List<Object> pageParams(final Integer pageIndex,Integer pageSize){
-    pageSize = (pageSize > 100) ? 50 : pageSize;
+    pageSize = (pageSize > 100) ? ConfigFiles.pageSize : pageSize;
     final Integer section = (pageIndex - 1) * pageSize;
     final ArrayList<Object> params = new ArrayList<>();
     params.add(section);
