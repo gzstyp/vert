@@ -7,9 +7,11 @@ import com.fwtai.service.TemplateService;
 import com.fwtai.service.UrlHandle;
 import com.fwtai.service.UserService;
 import com.fwtai.tool.ToolClient;
+import com.fwtai.tool.ToolLambda;
 import com.fwtai.tool.ToolMySQL;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.Log4JLoggerFactory;
+import io.vertx.config.ConfigRetriever;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpMethod;
@@ -49,7 +51,9 @@ public class Launcher extends AbstractVerticle {
   @Override
   public void start(final Promise<Void> startPromise) throws Exception {
 
-    toolMySQL = new ToolMySQL(vertx);
+    final ConfigRetriever retriever = ConfigRetriever.create(vertx);//实例化配置文件,全局
+
+    toolMySQL = new ToolMySQL(vertx,retriever);
 
     thymeleaf = ThymeleafTemplateEngine.create(vertx);//实例化
 
@@ -85,15 +89,20 @@ public class Launcher extends AbstractVerticle {
     //router.route().handler(CorsHandler.create("vertx\\.io").allowedMethods(methods));//支持正则表达式
     router.route().blockingHandler(CorsHandler.create(ConfigFiles.allowedOriginPattern).allowedMethods(methods));//支持正则表达式
 
-    //第三步,将router和 HttpServer 绑定
-    server.requestHandler(router).listen(ConfigFiles.port, http -> {
-      if (http.succeeded()) {
-        startPromise.complete();
-        System.out.println("---应用启动成功---"+ConfigFiles.port);
-      } else {
-        startPromise.fail(http.cause());
-        System.out.println("---应用启动失败---");
-      }
+    ToolLambda.getConfig(retriever).onSuccess(config ->{
+      //第三步,将router和 HttpServer 绑定
+      final Integer port = config.getInteger("appPort");
+      server.requestHandler(router).listen(port, http -> {
+        if (http.succeeded()) {
+          startPromise.complete();
+          logger.info("---应用启动成功---"+port);
+        } else {
+          startPromise.fail(http.cause());
+          logger.error("Launcher应用启动失败");
+        }
+      });
+    }).onFailure(throwable->{
+      logger.error("Launcher读取配置文件失败,"+throwable.getMessage());
     });
 
     //第四步,配置Router解析url

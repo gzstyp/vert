@@ -37,8 +37,7 @@ public final class ToolMySQL{
 
   private MySQLConnectOptions connectOptions;
 
-  public ToolMySQL(final Vertx vertx){
-    final ConfigRetriever retriever = ConfigRetriever.create(vertx);//实例化配置文件
+  public ToolMySQL(final Vertx vertx,final ConfigRetriever retriever){
     retriever.getConfig(ar -> {
       if(ar.succeeded()) {
         final JsonObject config = ar.result();
@@ -54,7 +53,7 @@ public final class ToolMySQL{
         final PoolOptions pool = new PoolOptions().setMaxSize(config.getInteger("maxSize",16));
         client = MySQLPool.pool(vertx,connectOptions,pool);
       } else {
-        logger.error("读取数据库配置文件失败");
+        logger.error("ToolMySQL读取配置文件失败,"+ar.cause());
       }
     });
   }
