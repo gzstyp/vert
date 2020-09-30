@@ -93,8 +93,12 @@ public final class ToolClient{
     }
   }
 
-  private static HttpServerResponse getResponse(final RoutingContext context){
+  public static HttpServerResponse getResponse(final RoutingContext context){
     return context.response().putHeader("Server","vert.x").putHeader("Cache-Control","no-cache").putHeader("content-type","text/html;charset=utf-8");
+  }
+
+  public static HttpServerResponse getResponse(final HttpServerRequest request){
+    return request.response().putHeader("Cache-Control","no-cache").putHeader("content-type","text/html;charset=utf-8");
   }
 
   /**响应json数据:第二个参数是json格式数据*/
