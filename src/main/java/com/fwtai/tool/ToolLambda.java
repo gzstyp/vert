@@ -20,7 +20,7 @@ import java.util.List;
  * @QQ号码 444141300
  * @Email service@dwlai.com
  * @官网 http://www.fwtai.com
- */
+*/
 public final class ToolLambda{
 
   public static Future<JsonObject> getConfig(final ConfigRetriever retriever){
