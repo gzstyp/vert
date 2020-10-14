@@ -8,5 +8,5 @@
   "ssl": false,
   "maxSize": 32,
   "appPort" : 80,
-  "allowedDomain" : "http://192.168.3.108:8080"
+  "allowedOrigin" : "http://192.168.3.108:8080"
 }

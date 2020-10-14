@@ -87,7 +87,7 @@ public class Launcher extends AbstractVerticle {
 
     ToolLambda.getConfig(retriever).onSuccess(config ->{
       final Integer port = config.getInteger("appPort");
-      final String allowedOrigin = config.getString("allowedDomain");
+      final String allowedOrigin = config.getString("allowedOrigin");
       //router.route().handler(CorsHandler.create("vertx\\.io").allowedMethods(methods));//支持正则表达式
       router.route().blockingHandler(CorsHandler.create(allowedOrigin).allowedMethods(methods));//支持正则表达式
       //第三步,将router和 HttpServer 绑定[若是使用配置文件则这样实例化,如果不配置文件则把它挪动到lambda外边即可]
